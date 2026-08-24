@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 import { sql } from './db.js';
@@ -37,6 +39,16 @@ app.use((err, _req, res, _next) => {
   res.status(err.status || 500).json({ error: err.message || 'Something went wrong' });
 });
 
-app.listen(PORT, () => {
-  console.log(`\n  Quill API  ->  http://localhost:${PORT}\n`);
-});
+// Only bind a port when this file is the process entry point
+// (Netlify imports `app` through netlify/functions/api.mjs instead)
+const isDirectRun =
+  Boolean(process.argv[1]) &&
+  import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+
+if (isDirectRun) {
+  app.listen(PORT, () => {
+    console.log(`\n  Quill API  ->  http://localhost:${PORT}\n`);
+  });
+}
+
+export { app };

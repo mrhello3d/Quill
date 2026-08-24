@@ -1,0 +1,23 @@
+[build]
+  command = "npm run build:netlify"
+  publish = "client/dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  node_bundler = "esbuild"
+
+# API -> serverless function (must come before the SPA fallback)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# React Router SPA fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
